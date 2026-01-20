@@ -1,4 +1,4 @@
-import { loginUser } from "../../services/AuthService/auth.service.js";
+import * as AuthService from "../../services/AuthService/auth.service.js";
 
 export async function login(req, res) {
     
@@ -11,7 +11,7 @@ export async function login(req, res) {
         });
     }
 
-    const response = await loginUser(email, password);
+    const response = await AuthService.loginUser(email, password);
 
     res.json({
         ok: true,
@@ -19,3 +19,19 @@ export async function login(req, res) {
         user: response.user,
     });
 }
+
+
+export async function context(req, res) {
+  // Debug rápido (temporal)
+  console.log("REQ.USER =>", req.user);
+
+  const userId = req.user.id;
+
+  const data = await AuthService.getUserContext(userId);
+
+  res.json({
+    ok: true,
+    ...data,
+  });
+}
+

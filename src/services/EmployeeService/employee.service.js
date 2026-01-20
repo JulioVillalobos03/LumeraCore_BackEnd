@@ -1,10 +1,12 @@
 import { db } from "../../config/db.js";
 import { v4 as uuid } from "uuid";
 import * as CustomFieldService from "../CustomFieldService/customField.service.js";
+import { AppError } from "../../utils/AppError.js";
 
+/**
+ * Crear empleado
+ */
 export async function createEmployee(companyId, data) {
-  const id = uuid();
-
   const {
     first_name,
     last_name,
@@ -13,14 +15,20 @@ export async function createEmployee(companyId, data) {
     position = null,
     department = null,
     user_id = null,
-    custom_fields = null
+    custom_fields = null,
   } = data;
+
+  if (!companyId || !first_name || !last_name) {
+    throw new AppError("EMPLOYEE_INVALID_INPUT");
+  }
+
+  const id = uuid();
 
   await db.query(
     `
     INSERT INTO employees
-    (id, company_id, user_id, first_name, last_name, email, phone, position, department)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, company_id, user_id, first_name, last_name, email, phone, position, department, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
     `,
     [
       id,
@@ -35,7 +43,7 @@ export async function createEmployee(companyId, data) {
     ]
   );
 
-  // ✅ guardar custom fields si vienen
+  // ✅ Guardar custom fields
   if (custom_fields) {
     await CustomFieldService.saveValues({
       companyId,
@@ -48,6 +56,9 @@ export async function createEmployee(companyId, data) {
   return { id };
 }
 
+/**
+ * Listar empleados por empresa
+ */
 export async function getEmployeesByCompany(companyId) {
   const [rows] = await db.query(
     `
@@ -62,6 +73,9 @@ export async function getEmployeesByCompany(companyId) {
   return rows;
 }
 
+/**
+ * Obtener empleado por ID (incluye custom fields)
+ */
 export async function getEmployee(companyId, employeeId) {
   const [[employee]] = await db.query(
     `
@@ -72,7 +86,9 @@ export async function getEmployee(companyId, employeeId) {
     [employeeId, companyId]
   );
 
-  if (!employee) return null;
+  if (!employee) {
+    throw new AppError("EMPLOYEE_NOT_FOUND");
+  }
 
   const customFields = await CustomFieldService.getValues({
     companyId,
@@ -86,7 +102,14 @@ export async function getEmployee(companyId, employeeId) {
   };
 }
 
+/**
+ * Actualizar empleado
+ */
 export async function updateEmployee(companyId, employeeId, data) {
+  if (!companyId || !employeeId) {
+    throw new AppError("EMPLOYEE_INVALID_INPUT");
+  }
+
   const {
     first_name,
     last_name,
@@ -95,10 +118,10 @@ export async function updateEmployee(companyId, employeeId, data) {
     position,
     department,
     user_id,
-    custom_fields
+    custom_fields,
   } = data;
 
-  await db.query(
+  const [result] = await db.query(
     `
     UPDATE employees
     SET
@@ -124,6 +147,10 @@ export async function updateEmployee(companyId, employeeId, data) {
     ]
   );
 
+  if (result.affectedRows === 0) {
+    throw new AppError("EMPLOYEE_NOT_FOUND");
+  }
+
   // ✅ actualizar custom fields
   if (custom_fields) {
     await CustomFieldService.saveValues({
@@ -135,8 +162,15 @@ export async function updateEmployee(companyId, employeeId, data) {
   }
 }
 
+/**
+ * Cambiar status de empleado
+ */
 export async function changeEmployeeStatus(companyId, employeeId, status) {
-  await db.query(
+  if (!["active", "inactive"].includes(status)) {
+    throw new AppError("EMPLOYEE_INVALID_INPUT");
+  }
+
+  const [result] = await db.query(
     `
     UPDATE employees
     SET status = ?
@@ -144,4 +178,8 @@ export async function changeEmployeeStatus(companyId, employeeId, status) {
     `,
     [status, employeeId, companyId]
   );
+
+  if (result.affectedRows === 0) {
+    throw new AppError("EMPLOYEE_NOT_FOUND");
+  }
 }

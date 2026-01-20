@@ -22,6 +22,7 @@ export const DEFAULT_PERMISSIONS = [
   "products.create",
   "products.read",
   "products.update",
+  "products.change_status",
 
   "clients.create",
   "clients.read",

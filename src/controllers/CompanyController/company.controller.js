@@ -5,6 +5,8 @@ import * as CompanyService from "../../services/CompanyService/company.service.j
  * POST /companies
  */
 export async function create(req, res) {
+  console.log("REQ.USER =>", req.user); // 👈 AÑADE ESTO
+  console.log("HEADERS =>", req.headers.authorization);
   const userId = req.user.id;
   const { name } = req.body;
 

@@ -10,6 +10,20 @@ export async function list(req, res) {
   res.json({ ok: true, inventory });
 }
 
+
+export async function show(req, res) {
+  const companyId = req.company.id;
+  const { id } = req.params;
+
+  const inventory = await InventoryService.getInventoryById(companyId, id);
+
+  if (!inventory) {
+    return res.status(404).json({ ok: false, message: "Inventory not found" });
+  }
+
+  res.json({ ok: true, inventory });
+}
+
 /**
  * POST /inventory/adjust
  */

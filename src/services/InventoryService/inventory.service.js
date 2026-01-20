@@ -1,5 +1,6 @@
 import { db } from "../../config/db.js";
 import { v4 as uuid } from "uuid";
+import * as CustomFieldService from "../CustomFieldService/customField.service.js";
 
 /**
  * Obtener inventario por empresa
@@ -20,7 +21,61 @@ export async function getInventory(companyId) {
     [companyId]
   );
 
-  return rows;
+  // ⬇️ agregar custom fields por producto
+  const inventoryWithCustomFields = await Promise.all(
+    rows.map(async (item) => {
+      const customFields = await CustomFieldService.getValues({
+        companyId,
+        entity: "products",
+        entityId: item.product_id,
+      });
+
+      return {
+        ...item,
+        custom_fields: customFields,
+      };
+    })
+  );
+
+  return inventoryWithCustomFields;
+}
+
+export async function getInventoryById(companyId, inventoryId) {
+  const [[row]] = await db.query(
+    `
+    SELECT 
+      i.id,
+      i.stock,
+      p.id AS product_id,
+      p.name,
+      p.sku
+    FROM inventory i
+    JOIN products p ON p.id = i.product_id
+    WHERE i.id = ? AND i.company_id = ?
+    `,
+    [inventoryId, companyId]
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  const customFields = await CustomFieldService.getValues({
+    companyId,
+    entity: "products",
+    entityId: row.product_id,
+  });
+
+  return {
+    id: row.id,
+    stock: row.stock,
+    product: {
+      id: row.product_id,
+      name: row.name,
+      sku: row.sku,
+      custom_fields: customFields,
+    },
+  };
 }
 
 /**

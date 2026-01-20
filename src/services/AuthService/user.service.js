@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { db } from "../../config/db.js";
+import { AppError } from "../../utils/AppError.js";
 
 export async function createUser({ name, email, password }) {
   // 1) Validar si ya existe
@@ -9,10 +10,12 @@ export async function createUser({ name, email, password }) {
     [email]
   );
 
+  if (!name || !email || !password) {
+    throw new AppError("AUTH_INVALID_INPUT");
+  }
+
   if (exists.length > 0) {
-    const err = new Error("Email already exists");
-    err.statusCode = 409;
-    throw err;
+    throw new AppError("AUTH_EMAIL_ALREADY_EXISTS");
   }
 
   // 2) Hashear password

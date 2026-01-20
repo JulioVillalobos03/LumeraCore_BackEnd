@@ -1,8 +1,12 @@
 import * as ProductService from "../../services/ProductService/product.service.js";
 
 export async function create(req, res) {
+  console.log("🟢 [PRODUCT CREATE] Controller hit");
+  console.log("🟢 companyId:", req.company?.id);
+  console.log("🟢 body:", req.body);
   const companyId = req.company.id;
   const result = await ProductService.createProduct(companyId, req.body);
+  console.log("🟢 result:", result);
   res.json({ ok: true, data: result });
 }
 

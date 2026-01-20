@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import { routes} from './routes/index.js';
 import { notFound } from './middlewares/notFound.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { errorMiddleware } from "./middlewares/error.middleware.js";
+
 
 const app = express();
 
@@ -21,5 +23,6 @@ app.use("/api", routes);
 
 app.use(notFound);
 app.use(errorHandler);
+app.use(errorMiddleware);
 
 export default app;

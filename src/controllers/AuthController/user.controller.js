@@ -1,4 +1,5 @@
 import { createUser } from "../../services/AuthService/user.service.js";
+import jwt from "jsonwebtoken";
 
 export async function register(req, res) {
   const { name, email, password } = req.body;
@@ -11,10 +12,23 @@ export async function register(req, res) {
   }
 
   const user = await createUser({ name, email, password });
+  
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    }
+  )
 
   return res.status(201).json({
     ok: true,
     message: "User created",
+    token,
     user,
   });
 }

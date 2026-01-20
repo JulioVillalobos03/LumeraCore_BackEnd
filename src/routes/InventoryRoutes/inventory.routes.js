@@ -11,34 +11,64 @@ const router = Router();
 router.use(authMiddleware);
 router.use(companyMiddleware);
 
-// Ver inventario
+// =========================
+// INVENTORY LIST
+// =========================
 router.get(
   "/",
   requirePermission("inventory.read"),
   asyncHandler(InventoryController.list)
 );
 
-// Ajustar inventario
-router.post(
-  "/adjust",
-  requirePermission("inventory.adjust"),
-  asyncHandler(InventoryController.adjust)
-);
-
-// Ver movimientos
+// =========================
+// MOVEMENTS (ANTES DE :id)
+// =========================
 router.get(
   "/movements",
   requirePermission("inventory.movements.read"),
   asyncHandler(InventoryController.movements)
 );
 
-// Crear movimiento
-router.post("/", asyncHandler(InventoryController.add));
+// =========================
+// STOCK
+// =========================
+router.get(
+  "/stock/:productId",
+  asyncHandler(InventoryController.stock)
+);
 
-// Ver stock actual
-router.get("/stock/:productId", asyncHandler(InventoryController.stock));
+// =========================
+// HISTORY BY PRODUCT
+// =========================
+router.get(
+  "/history/:productId",
+  asyncHandler(InventoryController.history)
+);
 
-// Historial de movimientos
-router.get("/history/:productId", asyncHandler(InventoryController.history));
+// =========================
+// INVENTORY BY ID (AL FINAL)
+// =========================
+router.get(
+  "/:id",
+  requirePermission("inventory.read"),
+  asyncHandler(InventoryController.show)
+);
+
+// =========================
+// ADJUST INVENTORY
+// =========================
+router.post(
+  "/adjust",
+  requirePermission("inventory.adjust"),
+  asyncHandler(InventoryController.adjust)
+);
+
+// =========================
+// ADD MOVEMENT
+// =========================
+router.post(
+  "/",
+  asyncHandler(InventoryController.add)
+);
 
 export default router;
