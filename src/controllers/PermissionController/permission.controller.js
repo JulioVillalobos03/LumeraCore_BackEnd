@@ -24,3 +24,20 @@ export async function assign(req, res) {
 
   res.json({ message: "Permission assigned to role" });
 }
+
+export async function listByRole(req, res) {
+  const { roleId } = req.params;
+
+  if (!roleId) {
+    return res.status(400).json({
+      message: "roleId is required",
+    });
+  }
+
+  const permissions = await PermissionService.getPermissionsByRole(roleId);
+
+  res.json({
+    ok: true,
+    data: permissions,
+  });
+}

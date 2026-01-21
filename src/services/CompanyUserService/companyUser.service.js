@@ -50,17 +50,22 @@ export async function getCompanyUsers(companyId) {
  */
 export async function getUsersByCompany(companyId) {
   const [rows] = await db.query(
-    `SELECT
-        cu.id AS company_user_id,
-        u.id AS user_id,
-        u.name,
-        u.email,
-        cu.status,
-        u.created_at
-     FROM company_users cu
-     INNER JOIN users u ON u.id = cu.user_id
-     WHERE cu.company_id = ?
-     ORDER BY u.created_at DESC`,
+    `
+    SELECT
+      cu.id AS company_user_id,
+      u.id AS user_id,
+      u.name,
+      u.email,
+      cu.status,
+      u.created_at,
+      r.id AS role_id,
+      r.name AS role_name
+    FROM company_users cu
+    INNER JOIN users u ON u.id = cu.user_id
+    LEFT JOIN roles r ON r.id = cu.role_id
+    WHERE cu.company_id = ?
+    ORDER BY u.created_at DESC
+    `,
     [companyId]
   );
 

@@ -13,6 +13,7 @@ export const DEFAULT_PERMISSIONS = [
   "roles.assign",
 
   "permissions.create",
+  "permissions.read",
   "permissions.assign",
 
   "inventory.read",

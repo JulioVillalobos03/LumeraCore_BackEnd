@@ -80,3 +80,23 @@ export async function getPermissionsByUser({ userId, companyId }) {
 
   return rows.map(r => r.permission_key);
 }
+
+/**
+ * Obtener permisos asignados a un rol
+ */
+export async function getPermissionsByRole(roleId) {
+  const [rows] = await db.query(
+    `
+    SELECT
+      p.id,
+      p.permission_key
+    FROM role_permissions rp
+    INNER JOIN permissions p ON p.id = rp.permission_id
+    WHERE rp.role_id = ?
+    ORDER BY p.permission_key ASC
+    `,
+    [roleId]
+  );
+
+  return rows;
+}

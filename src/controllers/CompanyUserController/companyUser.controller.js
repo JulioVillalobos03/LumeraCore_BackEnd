@@ -1,6 +1,7 @@
 import {
   assignUserToCompany,
   getCompanyUsers,
+  getUsersByCompany,
   updateCompanyUserStatus,
 } from "../../services/CompanyUserService/companyUser.service.js";
 
@@ -29,7 +30,7 @@ export async function assign(req, res) {
 export async function list(req, res) {
   const { companyId } = req.params;
 
-  const users = await getCompanyUsers(companyId);
+  const users = await getUsersByCompany(companyId);
 
   res.json({ users });
 }
