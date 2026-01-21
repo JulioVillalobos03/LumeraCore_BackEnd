@@ -20,6 +20,7 @@ import customFieldRoutes from "./CustomFieldRoutes/customField.routes.js";
 
 export const routes = Router();
 
+routes.use("/", tenantRoutes);
 routes.use('/health', healthRoutes);
 routes.use('/tenant', tenantRoutes);
 routes.use('/auth', authRoutes);
