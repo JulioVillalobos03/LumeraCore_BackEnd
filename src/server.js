@@ -1,7 +1,10 @@
+import "dotenv/config";
 import app from './app.js';
 import { env } from './config/env.js';
 
 app.listen(env.port, () => {
+     console.log("PORT:", env.port);
+    console.log("JWT_SECRET:", env.jwt.secret ? "OK" : "MISSING");
     console.log(`Server running on port ${env.port}`);
 });
 
